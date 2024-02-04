@@ -157,7 +157,6 @@ function M.stat(filename)
 		path = string.format("%s/", path)
 	elseif type == "sym" then
 		h.linkname = unistd.readlink(filename)
-		h.size = 0
 	elseif type == "chr" or type == "blk" then
 		h.devmajor = st.st_dev >> 8 & 0xff
 		h.devminor = st.st_dev & 0xff
