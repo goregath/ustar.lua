@@ -41,6 +41,17 @@ local F <const> = {
 	prefix   = { i=16, s=pass,    g=pass    }, -- 345 155
 }
 
+local function tostring(self)
+	local chk = 0
+	-- c45 *alculate checksum
+	rawset(self, 7, string.rep("\x20", 8))
+	local blk = string.pack(S, table.unpack(self))
+	for c in blk:gmatch("[^\0]") do chk = chk + c:byte() end
+	rawset(self, 7, string.format("%o", chk))
+	-- final header fields to block conversion
+	return string.pack(S, table.unpack(self))
+end
+
 local function set(self, opts)
 	for o, v in pairs(opts) do
 		if F[o] and F[o].s then
@@ -78,17 +89,6 @@ local function setpath(self, path, plain)
 	return self
 end
 
-local function tostring(self)
-	local chk = 0
-	-- calculate checksum
-	rawset(self, 7, string.rep("\x20", 8))
-	local blk = string.pack(S, table.unpack(self))
-	for c in blk:gmatch("[^\0]") do chk = chk + c:byte() end
-	rawset(self, 7, string.format("%o", chk))
-	-- final header fields to block conversion
-	return string.pack(S, table.unpack(self))
-end
-
 local function write(self, handle)
 	if not handle then handle = io.stdout end
 	local header = tostring(self)
@@ -124,9 +124,9 @@ local mt = {
 }
 
 function M.new(opts)
-	local H = setmetatable({
-		set = set,
+	local h = setmetatable({
 		rawset = setraw,
+		set = set,
 		setpath = setpath,
 		tostring = tostring,
 		write = write,
@@ -134,9 +134,9 @@ function M.new(opts)
 		[11] = "00",
 	}, mt)
 	if opts then
-		set(H, opts)
+		set(h, opts)
 	end
-	return H
+	return h
 end
 
 function M.stat(filename)
