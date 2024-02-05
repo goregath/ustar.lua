@@ -4,7 +4,6 @@
 -- @Last Modified time: 2023-07-30 12:37:10
 -- vim: sw=4:noexpandtab
 
--- TODO zero terminated strings
 local M = {}
 
 local T <const> = {
@@ -22,31 +21,39 @@ local function oct2dec(s) return tonumber(s:match("^%d+") or "0", 8) end
 local function dec2oct(i) return string.format("%o", tonumber(i) or 0) end
 local function sym2oct(s) return T[s] or dec2oct(s) end
 
--- local S <const> = "!1c100c8c8c8c12c12c8c1c100c6c2c32c32c8c8c155xxxxxxxxxxxx"
-local S <const> = "!1c99xc7xc7xc7xc11xc11xc8c1c99xc6c2c31xc31xc7xc7c154xxxxxxxxxxxxxx"
+local S <const> = "!1c99xc7xc7xc7xc11xc11xc8c1c99xc5xc2c31xc31xc7xc7xc154xxxxxxxxxxxxx"
 local F <const> = {
-	name     = { i=01, s=pass,    g=pass    }, -- 100
-	mode     = { i=02, s=dec2oct, g=oct2dec }, -- 8
-	uid      = { i=03, s=dec2oct, g=oct2dec }, -- 8
-	gid      = { i=04, s=dec2oct, g=oct2dec }, -- 8
-	size     = { i=05, s=dec2oct, g=oct2dec }, -- 12
-	mtime    = { i=06, s=dec2oct, g=oct2dec }, -- 12
-	chksum   = { i=07,            g=oct2dec }, -- 8
-	typeflag = { i=08, s=sym2oct, g=oct2dec }, -- 1
-	linkname = { i=09, s=pass,    g=pass    }, -- 100
-	magic    = { i=10,            g=pass    }, -- 6
-	version  = { i=11,            g=oct2dec }, -- 2
-	uname    = { i=12, s=pass,    g=pass    }, -- 32
-	gname    = { i=13, s=pass,    g=pass    }, -- 32
-	devmajor = { i=14, s=dec2oct, g=oct2dec }, -- 8
-	devminor = { i=15, s=dec2oct, g=oct2dec }, -- 8
-	prefix   = { i=16, s=pass,    g=pass    }, -- 155
+	name     = { i=01, s=pass,    g=pass    }, --   0 100
+	mode     = { i=02, s=dec2oct, g=oct2dec }, -- 100 8
+	uid      = { i=03, s=dec2oct, g=oct2dec }, -- 108 8
+	gid      = { i=04, s=dec2oct, g=oct2dec }, -- 116 8
+	size     = { i=05, s=dec2oct, g=oct2dec }, -- 124 12
+	mtime    = { i=06, s=dec2oct, g=oct2dec }, -- 136 12
+	chksum   = { i=07,            g=oct2dec }, -- 148 8
+	typeflag = { i=08, s=sym2oct, g=oct2dec }, -- 156 1
+	linkname = { i=09, s=pass,    g=pass    }, -- 157 100
+	magic    = { i=10,            g=pass    }, -- 257 6
+	version  = { i=11,            g=oct2dec }, -- 263 2
+	uname    = { i=12, s=pass,    g=pass    }, -- 265 32
+	gname    = { i=13, s=pass,    g=pass    }, -- 297 32
+	devmajor = { i=14, s=dec2oct, g=oct2dec }, -- 329 8
+	devminor = { i=15, s=dec2oct, g=oct2dec }, -- 337 8
+	prefix   = { i=16, s=pass,    g=pass    }, -- 345 155
 }
 
 local function set(self, opts)
 	for o, v in pairs(opts) do
 		if F[o] and F[o].s then
 			self[o] = v
+		end
+	end
+	return self
+end
+
+local function setraw(self, opts)
+	for o, v in pairs(opts) do
+		if F[o] then
+			rawset(self, F[o].i, v)
 		end
 	end
 	return self
@@ -83,8 +90,8 @@ local function tostring(self)
 end
 
 local function write(self, handle)
-    if not handle then handle = io.stdout end
-    local header = tostring(self)
+	if not handle then handle = io.stdout end
+	local header = tostring(self)
 	handle:write(header)
 end
 
@@ -119,6 +126,7 @@ local mt = {
 function M.new(opts)
 	local H = setmetatable({
 		set = set,
+		rawset = setraw,
 		setpath = setpath,
 		tostring = tostring,
 		write = write,
