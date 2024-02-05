@@ -22,7 +22,8 @@ local function oct2dec(s) return tonumber(s:match("^%d+") or "0", 8) end
 local function dec2oct(i) return string.format("%o", tonumber(i) or 0) end
 local function sym2oct(s) return T[s] or dec2oct(s) end
 
-local S <const> = "!1c100c8c8c8c12c12c8c1c100c6c2c32c32c8c8c155xxxxxxxxxxxx"
+-- local S <const> = "!1c100c8c8c8c12c12c8c1c100c6c2c32c32c8c8c155xxxxxxxxxxxx"
+local S <const> = "!1c99xc7xc7xc7xc11xc11xc8c1c99xc6c2c31xc31xc7xc7c154xxxxxxxxxxxxxx"
 local F <const> = {
 	name     = { i=01, s=pass,    g=pass    }, -- 100
 	mode     = { i=02, s=dec2oct, g=oct2dec }, -- 8
@@ -42,6 +43,15 @@ local F <const> = {
 	prefix   = { i=16, s=pass,    g=pass    }, -- 155
 }
 
+local function set(self, opts)
+	for o, v in pairs(opts) do
+		if F[o] and F[o].s then
+			self[o] = v
+		end
+	end
+	return self
+end
+
 local function setpath(self, path, plain)
 	if type(path) ~= "string" then path = tostring(path) end
 	if not plain then
@@ -53,11 +63,12 @@ local function setpath(self, path, plain)
 		if i < 155 then
 			self.prefix = path:sub(1, i)
 			self.name = path:sub(i + 2)
-			return
+			return self
 		end
 	end
 	self.prefix = nil
 	self.name = path
+	return self
 end
 
 local function tostring(self)
@@ -107,18 +118,15 @@ local mt = {
 
 function M.new(opts)
 	local H = setmetatable({
-		write = write,
+		set = set,
 		setpath = setpath,
 		tostring = tostring,
+		write = write,
 		[10] = "ustar",
 		[11] = "00",
 	}, mt)
 	if opts then
-		for o, v in pairs(opts) do
-			if F[o] and F[o].s then
-				H[o] = v
-			end
-		end
+		set(H, opts)
 	end
 	return H
 end
