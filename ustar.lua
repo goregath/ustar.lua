@@ -16,12 +16,12 @@ local T <const> = {
 	['p'] = 6, ['pipe'] = 6,
 }
 
-local function pass(s) return s and tostring(s):match("^%g+") or nil end
+local function pass(s) return s and tostring(s) or nil end
 local function oct2dec(s) return tonumber(s:match("^%d+") or "0", 8) end
 local function dec2oct(i) return string.format("%o", tonumber(i) or 0) end
 local function sym2oct(s) return T[s] or dec2oct(s) end
 
-local S <const> = "!1c99xc7xc7xc7xc11xc11xc8c1c99xc5xc2c31xc31xc7xc7xc154xxxxxxxxxxxxx"
+local S <const> = "!1=c99xc7xc7xc7xc11xc11xc8c1c99xc5xc2c31xc31xc7xc7xc154xxxxxxxxxxxxx"
 local F <const> = {
 	name     = { i=01, s=pass,    g=pass    }, --   0 100
 	mode     = { i=02, s=dec2oct, g=oct2dec }, -- 100 8
@@ -184,7 +184,7 @@ function M.stat(filename)
 		h.gname = grp.gr_name
 	end
 	setpath(h, path, true)
-	h.mode = st.st_mode
+	h.mode = st.st_mode & 0xfff
 	h.typeflag = type
 	h.mtime = st.st_mtime
 	h.uid = st.st_uid
