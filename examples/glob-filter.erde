@@ -1,13 +1,44 @@
+local libgen = require("posix.libgen")
+local libglob = require('posix.glob')
+
 package.path = "lib/?.lua;lib/?/init.lua;" .. package.path
-require("fun")()
+
 local ustar = require("ustar")
 local record = require("ustar.record")
+local type = require("ustar.util.type")
 
-local function glob(str) {
-    local fn = require('posix.glob').glob
-    return iter(fn(str, 0)):map(ustar.stat)
+require("fun")()
+
+--------------------------------------------------------------------------------
+
+local function glob(...) {
+	return zip({ ... }, zeros())
+	: map (libglob.glob)
+	: filter (assert)
+	: reduce ((a,e) -> chain(a,e), {})
 }
 
-  glob("*")
-: filter({ typeflag } -> typeflag == "d")
-: each(record.write)
+local function fakeroot(H) {
+	H.uname, H.gname = nil, nil
+	H.uid, H.gid = 0, 0
+	return H
+}
+
+local function pathrewrite(H) {
+	local path = H:getpath()
+	H.name = libgen.basename(path)
+	H.prefix = "lib"
+	return H
+}
+
+--------------------------------------------------------------------------------
+
+glob (
+	"*.md",
+	"lib/ustar/*.lua"
+)
+:    map (ustar.stat)
+: filter (type.isreg)
+:    map (fakeroot)
+:    map (pathrewrite)
+:   each (record.write)
