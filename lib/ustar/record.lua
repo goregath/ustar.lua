@@ -1,24 +1,13 @@
 -- vim: sw=4:noexpandtab
 
+local P = require("ustar.util.path")
+
 local M = {}
 local mt = {}
 
-local T <const> = {
-	[0] = '-', 'h', 'l', 'c', 'b', 'd', 'p',
-	['-'] = 0, ['reg'] = 0,
-	['h'] = 1, ['lnk'] = 1,
-	['l'] = 2, ['sym'] = 2,
-	['c'] = 3, ['chr'] = 3,
-	['b'] = 4, ['blk'] = 4,
-	['d'] = 5, ['dir'] = 5,
-	['p'] = 6, ['pipe'] = 6,
-}
-
-local function pass(s) return s and tostring(s) or nil end
+local function pass(s) return s and tostring(s):match("^.+$") or nil end
 local function oct2dec(s) return tonumber(s:match("^%d+") or "0", 8) end
 local function dec2oct(i) return string.format("%o", tonumber(i) or "0") end
-local function sym2oct(s) return T[s] or dec2oct(s) end
-local function oct2sym(i) return T[i] or T[0] end
 
 local S <const> = "!1=c99xc7xc7xc7xc11xc11xc8c1c99xc5xc2c31xc31xc7xc7xc154xxxxxxxxxxxxx"
 local F <const> = {
@@ -29,7 +18,7 @@ local F <const> = {
 	size     = { i=05, s=dec2oct, g=oct2dec }, -- 124 12
 	mtime    = { i=06, s=dec2oct, g=oct2dec }, -- 136 12
 	chksum   = { i=07,            g=oct2dec }, -- 148 8
-	typeflag = { i=08, s=sym2oct, g=oct2sym }, -- 156 1
+	typeflag = { i=08, s=dec2oct, g=oct2dec }, -- 156 1
 	linkname = { i=09, s=pass,    g=pass    }, -- 157 100
 	magic    = { i=10,            g=pass    }, -- 257 6
 	version  = { i=11,            g=oct2dec }, -- 263 2
@@ -39,6 +28,10 @@ local F <const> = {
 	devminor = { i=15, s=dec2oct, g=oct2dec }, -- 337 8
 	prefix   = { i=16, s=pass,    g=pass    }, -- 345 155
 }
+
+function mt.__tostring(t)
+	return string.format("record: %q", t:getpath())
+end
 
 function mt.__index(t, k)
 	if type(k) == "number" then return rawget(t, k) or "" end
@@ -94,6 +87,17 @@ local function setraw(self, opts)
 	return self
 end
 
+local function setpath(self, path)
+	self.name, self.prefix = P.split(path, true)
+end
+
+local function getpath(self)
+	if self.prefix then
+		return string.format("%s/%s", self.prefix or "", self.name or "")
+	end
+	return self.name
+end
+
 local function tostring(self)
 	local chk = 0
 	-- c45 *alculate checksum
@@ -125,8 +129,10 @@ end
 
 function M.new(opts)
 	local h = setmetatable({
+		getpath = getpath,
 		rawset = setraw,
 		set = set,
+		setpath = setpath,
 		tostring = tostring,
 		write = M.write,
 		[10] = "ustar",

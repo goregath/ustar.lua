@@ -25,6 +25,7 @@ local function split(path, plain)
 	return path, nil
 end
 
+-- TODO remove leading ../ or ../../ from member names
 local function normalize(path)
 	path = trim(path)
 	if path == "" then
