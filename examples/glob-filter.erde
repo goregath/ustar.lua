@@ -1,0 +1,13 @@
+package.path = "lib/?.lua;lib/?/init.lua;" .. package.path
+require("fun")()
+local ustar = require("ustar")
+local record = require("ustar.record")
+
+local function glob(str) {
+    local fn = require('posix.glob').glob
+    return iter(fn(str, 0)):map(ustar.stat)
+}
+
+  glob("*")
+: filter({ typeflag } -> typeflag == "d")
+: each(record.write)
