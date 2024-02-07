@@ -109,9 +109,10 @@ local function write(self, from, to)
 	local n = self.size + 512
 	local p = 0
 	local blk = self:tostring()
-	while blk and p < n do
+	while blk do
 		to:write(blk)
 		p = p + #blk
+		if p == n then break end
 		blk = assert(from:read(math.min(4096, n - p)), "unexpected eof")
 	end
 	if n % 512 ~= 0 then
