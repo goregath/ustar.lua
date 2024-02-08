@@ -19,8 +19,13 @@ local function glob(...) {
 }
 
 local function fakeroot(H) {
-	H.uname, H.gname = nil, nil
+	H.uname, H.gname = "root", "root"
 	H.uid, H.gid = 0, 0
+	return H
+}
+
+local function executable(H) {
+	H.mode |= 0b001001001
 	return H
 }
 
@@ -40,5 +45,7 @@ glob (
 :    map (ustar.stat)
 : filter (type.isreg)
 :    map (fakeroot)
+:    map (executable)
 :    map (pathrewrite)
 :   each (record.write)
+
