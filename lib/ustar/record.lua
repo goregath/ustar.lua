@@ -93,7 +93,7 @@ end
 
 local function getpath(self)
 	if self.prefix then
-		return string.format("%s/%s", self.prefix or "", self.name or "")
+		return string.format("%s/%s", self.prefix, self.name or "")
 	end
 	return self.name
 end
