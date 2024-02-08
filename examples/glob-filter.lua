@@ -1,12 +1,12 @@
 -- vim: sw=4:expandtab
 -- luacheck: std lua54
 
--- io.output "/tmp/out.tar"
+io.output "/tmp/out.tar"
 
-glob {
-	"lib/ustar/*.lua",
-	"examples/*.lua",
-}
+-- ARCHIVE SOURCES
+
+    glob { "lib/ustar/*.lua",
+           "examples/*.lua" }
 :    map ( ustar.io.stat )
 : filter ( ustar.type.isreg )
 :  apply { uid = 0,
