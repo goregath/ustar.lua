@@ -40,6 +40,7 @@ function mt.__index(t, k)
 		local r = t[f.i]
 		return f.g(r)
 	end
+	return M[k]
 end
 
 function mt.__newindex(t, k, v)
@@ -67,38 +68,25 @@ function mt.__len()
 	return 16
 end
 
-local function set(self, opts)
-	if not opts then return end
-	for o, v in pairs(opts) do
-		if F[o] and F[o].s then
-			self[o] = v
-		end
+function M.rawset(self, k, v)
+	if F[k] then
+		rawset(self, F[k].i, v)
 	end
 	return self
 end
 
-local function setraw(self, opts)
-	if not opts then return end
-	for o, v in pairs(opts) do
-		if F[o] then
-			rawset(self, F[o].i, v)
-		end
-	end
-	return self
-end
-
-local function setpath(self, path)
+function M.setpath(self, path)
 	self.name, self.prefix = P.split(path, true)
 end
 
-local function getpath(self)
+function M.getpath(self)
 	if self.prefix then
 		return string.format("%s/%s", self.prefix, self.name or "")
 	end
 	return self.name
 end
 
-local function tostring(self)
+function M.tostring(self)
 	local chk = 0
 	-- c45 *alculate checksum
 	rawset(self, 7, string.rep("\x20", 8))
@@ -109,36 +97,11 @@ local function tostring(self)
 	return string.pack(S, table.unpack(self))
 end
 
-function M.write(self, from, to)
-	if not from and self["@src"] then from = assert(io.open(self["@src"])) end
-	if not to then to = io.output() end
-	local n = self.size + 512
-	local p = 0
-	local blk = self:tostring()
-	while blk do
-		to:write(blk)
-		p = p + #blk
-		if p == n then break end
-		blk = assert(from:read(math.min(4096, n - p)), "unexpected eof")
-	end
-	if n % 512 ~= 0 then
-		local pad = 512 - p % 512
-		to:write(string.rep("\0", pad))
-	end
-end
-
-function M.new(opts)
+function M.new()
 	local h = setmetatable({
-		getpath = getpath,
-		rawset = setraw,
-		set = set,
-		setpath = setpath,
-		tostring = tostring,
-		write = M.write,
 		[10] = "ustar",
 		[11] = "00",
 	}, mt)
-	set(h, opts)
 	return h
 end
 
