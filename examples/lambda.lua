@@ -62,6 +62,7 @@ function glob(tbl)
 	: zip ( iter(tbl) ) -- [(tbl or errno), globstr]
 	: filter ( globassert ) -- [tbl] or error()
 	: reduce ( function(a, e) return chain(a, e) end, {} ) -- [path]
+	: uniq ()
 end
 
 local exports = require "fun"

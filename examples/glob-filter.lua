@@ -1,19 +1,18 @@
--- vim: sw=4:noexpandtab
+-- vim: sw=4:expandtab
 -- luacheck: std lua54
 
 -- io.output "/tmp/out.tar"
 
 glob {
-	"*",
-	"*.md",
+	"lib/ustar/*.lua",
+	"examples/*.lua",
 }
-:   uniq ()
 :    map ( ustar.io.stat )
 : filter ( ustar.type.isreg )
-:  apply { uid = 0 }
-:  apply { gid = 0 }
-:  apply { uname = "root" }
-:  apply { gname = "root" }
-:  apply { mtime = os.time() }
+:  apply { uid = 0,
+           gid = 0,
+           uname = "root",
+           gname = "root",
+           mtime = os.time() }
 :   each ( ustar.io.save )
 
