@@ -32,13 +32,34 @@ local function iter_mutator(self, conf, ...)
 	end
 end
 
-function glob(...)
+local function uniq(self, reject)
+	local x = {}
+	if reject then
+		for _, v in ipairs(reject) do
+			x[v] = true
+		end
+	end
+	local g, p, s = self:unwrap()
+	local function gen(param, state)
+		local _s, v = g(param, state)
+		while _s and x[v] do
+			_s, v = g(param, _s)
+		end
+		if v then
+			x[v] = true
+		end
+		return _s, v
+	end
+	return wrap(gen, p, s)
+end
+
+function glob(tbl)
 	local libglob = posix.glob
 	return
-	  zip ( iter(...), duplicate(libglob.GLOB_ERR) ) -- [globstr, GLOB_ERR]
+	  zip ( iter(tbl), duplicate(libglob.GLOB_ERR) ) -- [globstr, GLOB_ERR]
 	: map ( libglob.glob ) -- [tbl, errno]
 	: map ( function(t, i) return t and t or i end ) -- [tbl or errno]
-	: zip ( iter(...) ) -- [(tbl or errno), globstr]
+	: zip ( iter(tbl) ) -- [(tbl or errno), globstr]
 	: filter ( globassert ) -- [tbl] or error()
 	: reduce ( function(a, e) return chain(a, e) end, {} ) -- [path]
 end
@@ -47,5 +68,6 @@ local exports = require "fun"
 local methods = getmetatable(exports.wrap()).__index
 
 methods.apply = iter_mutator
+methods.uniq = uniq
 
 exports()

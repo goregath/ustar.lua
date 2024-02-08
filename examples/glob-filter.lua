@@ -3,12 +3,11 @@
 
 -- io.output "/tmp/out.tar"
 
--- TODO filter duplicates
-
 glob {
 	"*",
-	"README.md",
+	"*.md",
 }
+:   uniq ()
 :    map ( ustar.io.stat )
 : filter ( ustar.type.isreg )
 :  apply { uid = 0 }
