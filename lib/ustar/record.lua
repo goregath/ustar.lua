@@ -1,6 +1,6 @@
 -- vim: sw=4:noexpandtab
 
-local P = require("ustar.util.path")
+local P = require("ustar.path")
 
 local M = {}
 local mt = {}

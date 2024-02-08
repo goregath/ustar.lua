@@ -5,8 +5,8 @@ local usrdb = require("posix.pwd")
 local grpdb = require("posix.grp")
 local stat = require("posix.sys.stat")
 
-local P = require("ustar.util.path")
-local T = require("ustar.util.type")
+local P = require("ustar.path")
+local T = require("ustar.type")
 local R = require("ustar.record")
 
 local M = {}
