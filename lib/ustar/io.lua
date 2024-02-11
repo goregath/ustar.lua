@@ -9,6 +9,8 @@ local P = require("ustar.path")
 local T = require("ustar.type")
 local R = require("ustar.record")
 
+local eoa = string.rep("\0", 1024)
+
 local M = {}
 
 function M.stat(filename)
@@ -74,6 +76,11 @@ function M.save(self, from, to)
 		local pad = 512 - p % 512
 		to:write(string.rep("\0", pad))
 	end
+end
+
+function M.finalize(to)
+	if not to then to = io.output() end
+	to:write(eoa)
 end
 
 return M
