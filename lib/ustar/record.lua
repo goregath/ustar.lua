@@ -87,11 +87,10 @@ function M.getpath(self)
 end
 
 function M.tostring(self)
-	local chk = 0
-	-- c45 *alculate checksum
-	rawset(self, 7, string.rep("\x20", 8))
-	local blk = string.pack(S, table.unpack(self))
-	for c in blk:gmatch("[^\0]") do chk = chk + c:byte() end
+	-- calculate checksum
+	rawset(self, 7, nil)
+	local chk, blk = 0x20 * 8, table.concat(self)
+	for c in blk:gmatch(".") do chk = chk + c:byte() end
 	rawset(self, 7, string.format("%o", chk))
 	-- final header fields to block conversion
 	return string.pack(S, table.unpack(self))
