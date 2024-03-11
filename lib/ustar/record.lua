@@ -1,6 +1,7 @@
 -- vim: sw=4:noexpandtab
 
-local P = require("ustar.path")
+local libio = require("ustar.io")
+local libpath = require("ustar.path")
 
 local M = {}
 local mt = {}
@@ -9,8 +10,8 @@ local function pass(s) return s and tostring(s):match("^.+$") or nil end
 local function oct2dec(s) return tonumber(s:match("^%d+") or "0", 8) end
 local function dec2oct(i) return string.format("%o", tonumber(i) or "0") end
 
-local S <const> = "!1=c99xc7xc7xc7xc11xc11xc8c1c99xc5xc2c31xc31xc7xc7xc154xxxxxxxxxxxxx"
-local F <const> = {
+local S = "!1=c99xc7xc7xc7xc11xc11xc8c1c99xc5xc2c31xc31xc7xc7xc154xxxxxxxxxxxxx"
+local F = {
 	name     = { i=01, s=pass,    g=pass    }, --   0 100
 	mode     = { i=02, s=dec2oct, g=oct2dec }, -- 100 8
 	uid      = { i=03, s=dec2oct, g=oct2dec }, -- 108 8
@@ -40,7 +41,7 @@ function mt.__index(t, k)
 		local r = t[f.i]
 		return f.g(r)
 	end
-	return M[k]
+	return M[k] or libio[k]
 end
 
 function mt.__newindex(t, k, v)
@@ -68,6 +69,11 @@ function mt.__len()
 	return 16
 end
 
+function M.set(self, k, v)
+	self[k] = v
+	return self
+end
+
 function M.rawset(self, k, v)
 	if F[k] then
 		rawset(self, F[k].i, v)
@@ -76,7 +82,7 @@ function M.rawset(self, k, v)
 end
 
 function M.setpath(self, path)
-	self.name, self.prefix = P.split(path, true)
+	self.name, self.prefix = libpath.split(path, true)
 end
 
 function M.getpath(self)

@@ -7,13 +7,13 @@ local stat = require("posix.sys.stat")
 
 local P = require("ustar.path")
 local T = require("ustar.type")
-local R = require("ustar.record")
 
 local eoa = string.rep("\0", 1024)
 
 local M = {}
 
 function M.stat(filename)
+	local R = require("ustar.record")
 	if type(filename) ~= "string" then filename = tostring(filename) end
 	local st, msg, errno = stat.lstat(filename)
 	if not st then

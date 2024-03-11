@@ -3,14 +3,14 @@
 local M = {}
 
 -- constants
-local reg_t  <const> = 0
-local lnk_t  <const> = 1
-local sym_t  <const> = 2
-local chr_t  <const> = 3
-local blk_t  <const> = 4
-local dir_t  <const> = 5
-local fifo_t <const> = 6
-local cont_t <const> = 7
+local reg_t  = 0
+local lnk_t  = 1
+local sym_t  = 2
+local chr_t  = 3
+local blk_t  = 4
+local dir_t  = 5
+local fifo_t = 6
+local cont_t = 7
 
 M.REG  = reg_t
 M.LNK  = lnk_t
