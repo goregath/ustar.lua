@@ -1,7 +1,5 @@
 -- vim: sw=4:noexpandtab
 
-package.path = "lib/?.lua;lib/?/init.lua;" .. package.path
-
 posix = require("posix")
 ustar = require("ustar")
 

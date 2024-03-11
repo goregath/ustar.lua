@@ -21,13 +21,13 @@ M.DIR  = dir_t
 M.FIFO = fifo_t
 M.CONT = cont_t
 
-function M:isreg()  return self.typeflag == reg_t end
-function M:islnk()  return self.typeflag == lnk_t end
-function M:issym()  return self.typeflag == sym_t end
-function M:ischr()  return self.typeflag == chr_t end
-function M:isblk()  return self.typeflag == blk_t end
-function M:isdir()  return self.typeflag == dir_t end
-function M:isfifo() return self.typeflag == fifo_t end
-function M:iscont() return self.typeflag == cont_t end
+function M.isreg(self)  return self.typeflag == reg_t end
+function M.islnk(self)  return self.typeflag == lnk_t end
+function M.issym(self)  return self.typeflag == sym_t end
+function M.ischr(self)  return self.typeflag == chr_t end
+function M.isblk(self)  return self.typeflag == blk_t end
+function M.isdir(self)  return self.typeflag == dir_t end
+function M.isfifo(self) return self.typeflag == fifo_t end
+function M.iscont(self) return self.typeflag == cont_t end
 
 return M

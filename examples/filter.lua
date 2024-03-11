@@ -1,6 +1,10 @@
 -- vim: sw=4:expandtab
 -- luacheck: std lua54
 
+package.path = "lib/?.lua;lib/?/init.lua;examples/lib/?.lua;" .. package.path
+
+require "lambda"
+
 io.output "/tmp/out.tar"
 
 -- ARCHIVE SOURCES

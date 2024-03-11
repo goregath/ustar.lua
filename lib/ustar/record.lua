@@ -2,6 +2,7 @@
 
 local libio = require("ustar.io")
 local libpath = require("ustar.path")
+local libtype = require("ustar.type")
 
 local M = {}
 local mt = {}
@@ -41,7 +42,7 @@ function mt.__index(t, k)
 		local r = t[f.i]
 		return f.g(r)
 	end
-	return M[k] or libio[k]
+	return M[k] or libio[k] or libtype[k]
 end
 
 function mt.__newindex(t, k, v)
